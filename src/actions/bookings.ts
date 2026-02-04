@@ -118,6 +118,44 @@ export async function createBooking(formData: FormData) {
       return { error: 'Please sign in to book tickets' };
     }
 
+    // =====================================================
+    // CHECK DAILY SEAT LIMIT (Max 4 seats per day)
+    // =====================================================
+    const today = new Date();
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+    const endOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).toISOString();
+
+    const { data: todayBookings, error: todayBookingsError } = await supabase
+      .from('bookings')
+      .select('seats_booked')
+      .eq('user_id', authUser.id)
+      .eq('status', 'confirmed')
+      .gte('created_at', startOfToday)
+      .lte('created_at', endOfToday);
+
+    console.log('[createBooking] Today bookings check:', todayBookings?.length, 'Error:', todayBookingsError);
+
+    if (todayBookingsError) {
+      console.error('[createBooking] Failed to check today bookings:', todayBookingsError);
+      // Don't fail for this error, just log it
+    }
+
+    const existingSeatsCount = todayBookings?.reduce((sum, b) => sum + (b.seats_booked?.length || 0), 0) || 0;
+    const newSeatsCount = validated.data.seats.length;
+    const MAX_SEATS_PER_DAY = 4;
+
+    console.log(`[createBooking] Daily limit check: existing=${existingSeatsCount}, new=${newSeatsCount}, max=${MAX_SEATS_PER_DAY}`);
+
+    if (existingSeatsCount + newSeatsCount > MAX_SEATS_PER_DAY) {
+      console.log('[createBooking] Daily seat limit exceeded, blocking booking');
+      return { 
+        error: `Daily seat limit exceeded. You can only book up to ${MAX_SEATS_PER_DAY} seats per day. You already have ${existingSeatsCount} seat(s) booked today.` 
+      };
+    }
+    // =====================================================
+    // END DAILY SEAT LIMIT CHECK
+    // =====================================================
+
     // Get schedule details first
     const { data: schedule, error: scheduleError } = await supabase
       .from('schedules')
