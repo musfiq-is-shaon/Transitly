@@ -673,12 +673,12 @@ function SearchContent() {
       }
     };
 
-    // Also set up an interval to refresh every 10 seconds for active tab
+    // Also set up an interval to refresh every 60 seconds for active tab
     refreshInterval = setInterval(() => {
       if (document.visibilityState === 'visible' && hasSearched) {
         refreshData();
       }
-    }, 10000);
+    }, 60000);
 
     window.addEventListener('focus', handleFocus);
     document.addEventListener('visibilitychange', handleVisibilityChange);
