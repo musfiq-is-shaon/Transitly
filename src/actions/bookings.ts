@@ -196,7 +196,7 @@ export async function createBooking(formData: FormData) {
       return { error: bookingError.message };
     }
 
-    // Lock seats temporarily
+    // Lock seats temporarily and mark as booked (no pending state for instant booking)
     console.log('[createBooking] Locking seats...');
     
     // Use UPDATE instead of upsert because RLS policy only allows UPDATE (not INSERT) for non-admin users
@@ -204,9 +204,9 @@ export async function createBooking(formData: FormData) {
     const { error: lockError } = await supabase
       .from('seat_availability')
       .update({
-        status: 'reserved',
+        status: 'booked',  // Mark as booked directly (not reserved for 10 min)
         booked_by: authUser.id,
-        lock_expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutes
+        booked_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
       .eq('schedule_id', validated.data.scheduleId)
@@ -217,6 +217,24 @@ export async function createBooking(formData: FormData) {
     if (lockError) {
       return { error: `Failed to reserve seats: ${lockError.message}` };
     }
+
+    // CRITICAL: Update the available_seats count in schedules
+    // This is what shows in the search results!
+    const { count: newAvailableCount } = await supabase
+      .from('seat_availability')
+      .select('*', { count: 'exact', head: true })
+      .eq('schedule_id', validated.data.scheduleId)
+      .eq('status', 'available');
+
+    await supabase
+      .from('schedules')
+      .update({
+        available_seats: newAvailableCount || 0,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', validated.data.scheduleId);
+
+    console.log('[createBooking] Available seats updated to:', newAvailableCount);
 
     // Revalidate all relevant paths to update seat availability across the app
     revalidatePath('/dashboard');
@@ -300,7 +318,7 @@ export async function confirmBooking(bookingId: string, paymentId?: string) {
           .eq('schedule_id', confirmedBooking.schedule_id)
           .in('seat_number', confirmedBooking.seats_booked);
 
-        // Update available seats count
+        // Update available seats count properly
         const { count } = await supabase
           .from('seat_availability')
           .select('*', { count: 'exact', head: true })
@@ -374,18 +392,31 @@ export async function cancelBooking(bookingId: string) {
       return { error: updateError.message };
     }
 
-    // Release seats
+    // Release seats (make them available again, NOT delete)
     await supabase
       .from('seat_availability')
-      .delete()
+      .update({
+        status: 'available',
+        booked_by: null,
+        booked_at: null,
+        lock_expires_at: null,
+        updated_at: new Date().toISOString()
+      })
       .eq('schedule_id', booking.schedule_id)
       .in('seat_number', booking.seats_booked);
 
-    // Update available seats
+    // Update available seats count properly
+    const { count: newAvailableCount } = await supabase
+      .from('seat_availability')
+      .select('*', { count: 'exact', head: true })
+      .eq('schedule_id', booking.schedule_id)
+      .eq('status', 'available');
+
     await supabase
       .from('schedules')
       .update({
-        available_seats: booking.seats_booked.length
+        available_seats: newAvailableCount || 0,
+        updated_at: new Date().toISOString()
       })
       .eq('id', booking.schedule_id);
 
