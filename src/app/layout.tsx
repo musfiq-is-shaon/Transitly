@@ -9,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'BusBooking Pro - Modern Bus Ticket Booking Platform',
-  description: 'Book bus tickets easily with BusBooking Pro. Find and book buses for your journey with real-time seat selection and instant confirmation.',
+  title: 'Transitly - Modern Bus Ticket Booking Platform',
+  description: 'Book bus tickets easily with Transitly. Find and book buses for your journey with real-time seat selection and instant confirmation.',
   keywords: ['bus booking', 'bus tickets', 'travel', 'bus reservation', 'online booking'],
 };
 

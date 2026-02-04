@@ -134,7 +134,7 @@ export default function LoginPage() {
             <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25">
               <Bus className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-secondary-900">BusBooking<span className="text-primary-600">Pro</span></span>
+            <span className="text-xl font-bold text-secondary-900">Transitly</span>
           </Link>
 
           <h2 className="text-3xl font-bold text-secondary-900 mb-2">Welcome back</h2>

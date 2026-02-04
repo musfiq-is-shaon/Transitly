@@ -1,4 +1,4 @@
-# Deployment Checklist - BusBooking Pro
+# Deployment Checklist - Transitly
 
 ## Pre-Deployment Checklist
 

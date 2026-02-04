@@ -218,7 +218,30 @@ export default function BookPage() {
 
       if (result.error) {
         setError(result.error);
+        setBookingLoading(false);
         return;
+      }
+
+      // Confirm the booking using RPC function (bypasses RLS)
+      const { data: confirmData, error: confirmError } = await supabase
+        .rpc('confirm_booking_and_update_seats', {
+          p_booking_id: result.data?.id,
+        });
+
+      if (confirmError) {
+        console.warn('RPC confirm failed, trying direct update:', confirmError);
+        
+        // Fallback: Direct update using client (user is authenticated)
+        const { error: updateError } = await supabase
+          .from('bookings')
+          .update({ status: 'confirmed' })
+          .eq('id', result.data?.id);
+
+        if (updateError) {
+          setError(`Booking created but confirmation failed: ${updateError.message}`);
+          setBookingLoading(false);
+          return;
+        }
       }
 
       // Booking successful
@@ -264,7 +287,7 @@ export default function BookPage() {
               <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
                 <Bus className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-secondary-900">BusBooking<span className="text-primary-600">Pro</span></span>
+              <span className="font-bold text-secondary-900">Transitly</span>
             </Link>
           </div>
         </div>

@@ -149,7 +149,7 @@ export default function HomePage() {
               <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/25 group-hover:shadow-xl group-hover:shadow-primary-500/30 transition-all">
                 <Bus className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-secondary-900">BusBooking<span className="text-primary-600">Pro</span></span>
+              <span className="text-xl font-bold text-secondary-900">Transitly</span>
             </Link>
 
             {/* Desktop Nav */}
@@ -393,7 +393,7 @@ export default function HomePage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="section-title mb-4">Why Choose BusBooking Pro?</h2>
+            <h2 className="section-title mb-4">Why Choose Transitly?</h2>
             <p className="section-subtitle mx-auto">
               We provide the best bus booking experience with features designed for your comfort and convenience.
             </p>
@@ -514,7 +514,7 @@ export default function HomePage() {
             Ready to Start Your Journey?
           </h2>
           <p className="text-lg text-secondary-300 mb-8 max-w-2xl mx-auto">
-            Join millions of travelers who trust BusBooking Pro for their bus travel needs. Sign up today and get exclusive offers.
+            Join millions of travelers who trust Transitly for their bus travel needs. Sign up today and get exclusive offers.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
@@ -544,7 +544,7 @@ export default function HomePage() {
                 <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
                   <Bus className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-xl font-bold text-white">BusBooking<span className="text-primary-400">Pro</span></span>
+                <span className="text-xl font-bold text-white">Transitly</span>
               </Link>
               <p className="text-secondary-400 text-sm">
                 Bangladesh&apos;s trusted platform for bus ticket booking. Travel comfortably with ease.
@@ -586,7 +586,7 @@ export default function HomePage() {
 
           <div className="pt-8 border-t border-secondary-800 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-secondary-500 text-sm">
-              © 2025 BusBooking Pro. All rights reserved.
+              © 2025 Transitly. All rights reserved.
             </p>
             <div className="flex items-center gap-6">
               <Link href="#" className="text-secondary-400 hover:text-white transition-colors text-sm">Privacy Policy</Link>

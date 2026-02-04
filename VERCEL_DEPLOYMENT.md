@@ -1,4 +1,4 @@
-# Vercel Deployment Guide for BusBooking Pro
+# Vercel Deployment Guide for Transitly
 
 This guide provides step-by-step instructions to deploy the BusBooking Pro application to Vercel.
 

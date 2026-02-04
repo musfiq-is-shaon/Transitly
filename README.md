@@ -1,8 +1,8 @@
-# BusBooking Pro - Production-Ready SaaS Bus Ticket Booking Platform
+# Transitly - Production-Ready SaaS Bus Ticket Booking Platform
 
 A modern, production-ready SaaS bus ticket booking platform built with Next.js 14, Supabase, TypeScript, and Tailwind CSS. Features a professional, consumer-friendly design suitable for both individual travelers and corporate clients.
 
-![BusBooking Pro](https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=400&fit=crop)
+![Transitly](https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=400&fit=crop)
 
 ## ✨ Features
 
