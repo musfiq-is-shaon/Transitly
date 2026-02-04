@@ -185,7 +185,7 @@ export async function createBooking(formData: FormData) {
         passenger_details: validated.data.passengers,
         total_price: totalPrice,
         notes: validated.data.notes,
-        status: 'pending',
+        status: 'confirmed',
       })
       .select()
       .single();
