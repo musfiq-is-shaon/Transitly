@@ -208,7 +208,7 @@ export default function BookPage() {
     setError(null);
 
     try {
-      // Use the createBooking server action which includes daily limit check
+      // Use the createBooking server action which handles everything
       const formData = new FormData();
       formData.append('scheduleId', schedule!.id);
       formData.append('seats', JSON.stringify(selectedSeats));
@@ -222,31 +222,13 @@ export default function BookPage() {
         return;
       }
 
-      // Confirm the booking using RPC function (bypasses RLS)
-      const { data: confirmData, error: confirmError } = await supabase
-        .rpc('confirm_booking_and_update_seats', {
-          p_booking_id: result.data?.id,
-        });
-
-      if (confirmError) {
-        console.warn('RPC confirm failed, trying direct update:', confirmError);
-        
-        // Fallback: Direct update using client (user is authenticated)
-        const { error: updateError } = await supabase
-          .from('bookings')
-          .update({ status: 'confirmed' })
-          .eq('id', result.data?.id);
-
-        if (updateError) {
-          setError(`Booking created but confirmation failed: ${updateError.message}`);
-          setBookingLoading(false);
-          return;
-        }
-      }
-
-      // Booking successful
+      // Booking successful - createBooking already handles seat updates and confirmation
       setBookingReference(result.data?.booking_reference || null);
       setCurrentStep('confirmation');
+      
+      // Force refresh the entire page to trigger revalidation
+      // This ensures all cached data is refreshed across the app
+      router.refresh();
       
       // Force refresh seat availability data on the client side
       // This ensures other users see the updated seat availability immediately
