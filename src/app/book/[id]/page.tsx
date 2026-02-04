@@ -20,7 +20,7 @@ import {
   Download
 } from 'lucide-react';
 import { formatCurrency, formatDate, formatTime, getStatusColor, downloadTicketPDF, type TicketData, isDateTimeInPast } from '@/lib/utils';
-import { createBooking } from '@/actions/bookings';
+import { createBooking, confirmBooking } from '@/actions/bookings';
 
 interface SeatLayout {
   rows: number;
@@ -218,6 +218,14 @@ export default function BookPage() {
 
       if (result.error) {
         setError(result.error);
+        return;
+      }
+
+      // Confirm the booking (this is a demo, so we auto-confirm)
+      const confirmResult = await confirmBooking(result.data?.id);
+      
+      if (confirmResult.error) {
+        setError(confirmResult.error);
         return;
       }
 
