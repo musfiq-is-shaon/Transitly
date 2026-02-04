@@ -32,22 +32,20 @@ export const MINUTES_BEFORE_DEPARTURE = 15;
 export function getNowInBangladeshTime(): Date {
   const now = new Date();
   
-  // Bangladesh is UTC+6
-  const bangladeshOffsetHours = 6;
-  
-  // Get the UTC timestamp
+  // Get the UTC timestamp (adjusting for local timezone offset)
   const utcTime = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
   
-  // Add 6 hours to get Bangladesh time
-  return new Date(utcTime + (bangladeshOffsetHours * 60 * 60 * 1000));
+  // Add 6 hours to get Bangladesh time (UTC+6)
+  return new Date(utcTime + (6 * 60 * 60 * 1000));
+}
+
+// Get current UTC time (for server-side operations)
+export function getNowUTC(): Date {
+  return new Date();
 }
 
 export function canBookSchedule(dateTimeStr: string): boolean {
-  // Supabase returns timestamps with timezone info (e.g., "2026-02-05T13:00:00+00:00")
-  // We need to parse them correctly and compare against Bangladesh time
-  const now = getNowInBangladeshTime();
-  
-  // Parse the departure time - JavaScript's Date handles ISO 8601 correctly
+  // Parse the departure time from Supabase (stored as UTC with timezone)
   const departureTime = new Date(dateTimeStr);
   
   // If parsing failed, return false (don't show invalid schedules)
@@ -59,20 +57,28 @@ export function canBookSchedule(dateTimeStr: string): boolean {
   // Calculate the latest booking time (15 minutes before departure)
   const latestBookingTime = new Date(departureTime.getTime() - MINUTES_BEFORE_DEPARTURE * 60 * 1000);
   
+  // Get current UTC time (server-side operations should use UTC)
+  const now = new Date();
+  
   // Debug logging
   console.log('[canBookSchedule] Raw DB time:', dateTimeStr);
-  console.log('[canBookSchedule] Parsed departure:', departureTime.toISOString());
-  console.log('[canBookSchedule] Now (Bangladesh):', now.toISOString());
-  console.log('[canBookSchedule] Latest booking:', latestBookingTime.toISOString());
+  console.log('[canBookSchedule] Parsed departure (ms):', departureTime.getTime());
+  console.log('[canBookSchedule] Now (UTC):', now.toISOString());
+  console.log('[canBookSchedule] Latest booking (UTC):', latestBookingTime.toISOString());
   console.log('[canBookSchedule] Result:', now.getTime() < latestBookingTime.getTime());
   
-  // Allow booking only if current time is before the latest booking time
+  // Allow booking only if current UTC time is before the latest booking time
   return now.getTime() < latestBookingTime.getTime();
 }
 
 export function getMinutesUntilDeparture(dateTimeStr: string): number {
-  const now = getNowInBangladeshTime();
+  // Parse departure time from Supabase (UTC)
   const departureTime = new Date(dateTimeStr);
+  
+  // Get current UTC time
+  const now = new Date();
+  
+  // Calculate difference in minutes
   const diffMs = departureTime.getTime() - now.getTime();
   return Math.floor(diffMs / (1000 * 60)); // Convert to minutes
 }

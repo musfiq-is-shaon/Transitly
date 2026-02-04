@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from './auth';
-import { generateBookingReference, isDateTimeInPast, canBookSchedule, getMinutesUntilDeparture, getNowInBangladeshTime } from '@/lib/utils';
+import { generateBookingReference, isDateTimeInPast, canBookSchedule, getMinutesUntilDeparture, getNowInBangladeshTime, getNowUTC } from '@/lib/utils';
 import { searchSchedulesSchema, createBookingSchema } from '@/lib/schemas';
 
 export async function searchSchedules(formData: FormData) {
@@ -23,7 +23,7 @@ export async function searchSchedules(formData: FormData) {
     const supabase = await createClient();
 
     // Get route
-    const { data: route } = await supabase
+    const { data: route, error: routeError } = await supabase
       .from('routes')
       .select('id')
       .eq('from_city', validated.data.fromCity)
@@ -31,19 +31,32 @@ export async function searchSchedules(formData: FormData) {
       .eq('is_active', true)
       .single();
 
-    if (!route) {
+    if (routeError || !route) {
       return { error: 'No routes found for this journey' };
     }
 
-    // Get schedules for the date
-    const startOfDay = new Date(validated.data.date);
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(validated.data.date);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    const now = getNowInBangladeshTime();
+    // Get current UTC time for filtering departed schedules
+    const now = getNowUTC();
     const currentTime = now.toISOString();
+
+    // Parse the search date and convert to UTC for Supabase query
+    // User searches for Feb 5 = Feb 5 00:00:00 to Feb 5 23:59:59 Bangladesh time
+    // Bangladesh is UTC+6, so:
+    // - Feb 5 00:00 Bangladesh = Feb 4 18:00 UTC
+    // - Feb 5 23:59:59 Bangladesh = Feb 5 17:59:59 UTC
+    const year = parseInt(validated.data.date.substring(0, 4));
+    const month = parseInt(validated.data.date.substring(5, 7)) - 1;
+    const day = parseInt(validated.data.date.substring(8, 10));
+
+    // Start of day in Bangladesh = Feb 4 18:00 UTC
+    const startOfDayUTC = new Date(Date.UTC(year, month, day - 1, 18, 0, 0));
+    // End of day in Bangladesh = Feb 5 18:00 UTC (exclusive)
+    const endOfDayUTC = new Date(Date.UTC(year, month, day, 18, 0, 0));
+
+    console.log('[searchSchedules] Date:', validated.data.date);
+    console.log('[searchSchedules] Current UTC time:', currentTime);
+    console.log('[searchSchedules] Start UTC:', startOfDayUTC.toISOString());
+    console.log('[searchSchedules] End UTC:', endOfDayUTC.toISOString());
 
     const { data: schedules, error } = await supabase
       .from('schedules')
@@ -54,19 +67,23 @@ export async function searchSchedules(formData: FormData) {
       `)
       .eq('route_id', route.id)
       .eq('status', 'scheduled')
-      .gte('departure_time', startOfDay.toISOString())
-      .lte('departure_time', endOfDay.toISOString())
+      .gte('departure_time', startOfDayUTC.toISOString())
+      .lt('departure_time', endOfDayUTC.toISOString())
       // Filter out schedules that have already departed (departure_time >= now)
       .gte('departure_time', currentTime)
       .gt('available_seats', 0)
       .order('departure_time', { ascending: true });
 
     if (error) {
+      console.error('[searchSchedules] Query error:', error);
       return { error: error.message };
     }
 
+    console.log('[searchSchedules] Found schedules:', schedules?.length);
+
     return { success: true, data: schedules };
   } catch (error) {
+    console.error('[searchSchedules] Unexpected error:', error);
     return { error: 'An unexpected error occurred. Please try again.' };
   }
 }

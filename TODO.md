@@ -1,66 +1,38 @@
-# TODO - Fix Date Inconsistency Bug
+# TODO - Date Inconsistency Bug Fixes
 
-## Problem Analysis
+## Summary of Fixes Applied
 
-Multiple timezone-related bugs were causing issues:
-1. Date mismatch between search and booking pages
-2. Only afternoon buses showing instead of all buses for the day
-3. Count mismatch (19 shown vs actual count)
-4. AM/PM confusion - 1 PM buses not showing at 1 AM
+### 1. Fixed Server-Side Timezone Handling
+**Problem:** The server was using timezone-dependent calculations that didn't work correctly in all environments.
 
-## Root Causes
+**Fix:** Changed all server-side date comparisons to use UTC consistently:
+- `canBookSchedule()` now uses `new Date()` (UTC) instead of `getNowInBangladeshTime()`
+- `getMinutesUntilDeparture()` now uses `new Date()` (UTC) instead of `getNowInBangladeshTime()`
+- `searchSchedules()` now uses `getNowUTC()` instead of `getNowInBangladeshTime()`
 
-1. **`canBookSchedule()` was incorrectly adding timezone offset** - When Supabase returns timestamps with timezone info (e.g., "2026-02-05T13:00:00+00:00"), the code was incorrectly adding `+06:00` causing 1 PM to be parsed as 7 PM
-2. **`formatTime()` had same issue** - Causing display issues
-3. **`isDateInPast()` was overly complex** - Using UTC calculations when simple local comparison works
+### 2. Fixed getDayBoundsLocal() in search/page.tsx
+**Problem:** Search for Feb 5 was showing Feb 6 midnight tickets.
 
-## Fixes Applied
-
-### 1. Fixed `canBookSchedule()` function
-
-**Before (buggy):**
+**Fix:** Changed UTC bounds to properly convert Bangladesh local time:
 ```typescript
-const dateStr = dateTimeStr.includes('+') || dateTimeStr.includes('Z') 
-  ? dateTimeStr 
-  : dateTimeStr + '+06:00'; // This was adding +06:00 to timestamps that ALREADY have timezone
+const startOfDayUTC = new Date(Date.UTC(year, month, day - 1, 18, 0, 0));
+const endOfDayUTC = new Date(Date.UTC(year, month, day, 18, 0, 0));
 ```
 
-**After (fixed):**
+### 3. Fixed Timezone Calculation in utils.ts
+**Problem:** `getNowInBangladeshTime()` was adding 12 hours instead of 6 for UTC+6 timezones.
+
+**Fix:** Corrected the calculation:
 ```typescript
-// Supabase returns timestamps with timezone info (e.g., "2026-02-05T13:00:00+00:00")
-// JavaScript's Date.parse handles ISO 8601 correctly, so we can parse directly
-const departureTime = new Date(dateTimeStr);
+const utcTime = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+return new Date(utcTime + (6 * 60 * 60 * 1000));
 ```
 
-### 2. Fixed `formatTime()` function
+### 4. Increased Refresh Interval
+Changed auto-refresh from 10 seconds to 60 seconds to reduce API calls.
 
-Same fix - parse directly without adding timezone.
-
-### 3. Simplified `isDateInPast()` function
-
-**Before (overly complex):**
-```typescript
-const selectedDate = new Date(Date.UTC(year, month, day, 18, 0, 0));
-const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 18, 0, 0));
-```
-
-**After (simple):**
-```typescript
-const selectedDate = new Date(dateStr);
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-selectedDate.setHours(0, 0, 0, 0);
-```
-
-### 4. Fixed `getDayBoundsLocal()` function
-
-Fixed UTC bounds calculation for Bangladesh timezone.
-
-## Status
-
-- [x] Fix `canBookSchedule()` function in utils.ts - parse timestamps directly
-- [x] Fix `formatTime()` function in utils.ts - parse timestamps directly
-- [x] Simplify `isDateInPast()` function in utils.ts
-- [x] Fix `getDayBoundsLocal()` function in search/page.tsx
-- [x] Test the fix - Now 1 PM buses should show at 1 AM
+## Files Modified
+- `src/lib/utils.ts` - Fixed timezone calculations
+- `src/actions/bookings.ts` - Fixed server-side search to use UTC
+- `src/app/search/page.tsx` - Fixed date bounds calculation
 
