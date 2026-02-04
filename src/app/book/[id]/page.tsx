@@ -20,7 +20,7 @@ import {
   Download
 } from 'lucide-react';
 import { formatCurrency, formatDate, formatTime, getStatusColor, downloadTicketPDF, type TicketData, isDateTimeInPast } from '@/lib/utils';
-import { createBooking, confirmBooking } from '@/actions/bookings';
+import { createBooking } from '@/actions/bookings';
 
 interface SeatLayout {
   rows: number;
@@ -218,20 +218,6 @@ export default function BookPage() {
 
       if (result.error) {
         setError(result.error);
-        setBookingLoading(false);
-        return;
-      }
-
-      // Confirm the booking directly since user already authenticated
-      // This bypasses the server action RLS issue by using client-side update
-      const { error: confirmError } = await supabase
-        .from('bookings')
-        .update({ status: 'confirmed' })
-        .eq('id', result.data?.id);
-
-      if (confirmError) {
-        setError(`Failed to confirm booking: ${confirmError.message}`);
-        setBookingLoading(false);
         return;
       }
 
