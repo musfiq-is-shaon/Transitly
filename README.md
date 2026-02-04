@@ -2,6 +2,22 @@
 
 A modern, full-featured bus booking application built with Next.js 14, Supabase, and Tailwind CSS. Designed for the Bangladesh transportation market with support for multiple bus types, real-time seat availability, and comprehensive booking management.
 
+---
+
+## 🎯 What We Have Done
+
+### Recent Updates
+
+1. **Removed Demo Login Options** - Cleaned up the login page by removing:
+   - Demo Admin and Demo User login buttons
+   - Demo login functionality (`handleDemoLogin` function)
+   - Rate limit fallback to demo accounts
+   - Unused imports (RefreshCw icon)
+
+2. **Streamlined Authentication Flow** - Now users must use real email/password credentials to sign up and log in, providing a more production-ready experience.
+
+---
+
 ## 🌟 Key Features
 
 ### 🔐 Authentication & User Management
@@ -10,6 +26,7 @@ A modern, full-featured bus booking application built with Next.js 14, Supabase,
 - **Role-based Access** - User and admin roles with appropriate permissions
 - **Session Management** - Persistent sessions with secure token handling
 - **Protected Routes** - Middleware protection for authenticated pages
+- **Real-time Auth State** - Instant login/logout feedback
 
 ### 🔍 Smart Search System
 - **City-based Search** - Search buses between 20+ major cities in Bangladesh
@@ -48,6 +65,7 @@ A modern, full-featured bus booking application built with Next.js 14, Supabase,
 - **Booking Status** - Track booking status (confirmed, pending, cancelled, completed)
 - **Quick Actions** - View ticket, download ticket, or cancel booking
 - **Tab Navigation** - Switch between upcoming and past bookings
+- **Booking Statistics** - Overview of total bookings, upcoming trips, past trips, and cancelled bookings
 
 ### ❌ Booking Cancellation
 - **Self-service Cancellation** - Users can cancel their own bookings
@@ -71,6 +89,8 @@ A modern, full-featured bus booking application built with Next.js 14, Supabase,
 - **Route Management** - Manage routes between cities
 - **Schedule Management** - Create and manage bus schedules
 - **Role-based Permissions** - Admin users have elevated privileges
+
+---
 
 ## 🚀 Technical Features
 
@@ -107,18 +127,24 @@ A modern, full-featured bus booking application built with Next.js 14, Supabase,
 - `get_seat_layout()` - Returns seat layout for a bus type
 - `check_daily_seat_limit()` - Validates daily seat booking limit
 
+---
+
 ## 🚌 Supported Bus Types
 
-| Type | Description | Layout |
-|------|-------------|--------|
-| **Standard** | Affordable travel with essential amenities | 10 rows × 5 seats |
-| **Semi-Sleeper** | Reclining seats for comfortable journey | 10 rows × 5 seats |
-| **Sleeper** | Bunk beds for overnight journeys | 8 rows × 4 seats |
-| **Luxury** | Premium experience with all amenities | 9 rows × 4 seats |
+| Type | Description | Layout | Price Tier |
+|------|-------------|--------|------------|
+| **Standard** | Affordable travel with essential amenities | 10 rows × 5 seats | Economy |
+| **Semi-Sleeper** | Reclining seats for comfortable journey | 10 rows × 5 seats | Standard |
+| **Sleeper** | Bunk beds for overnight journeys | 8 rows × 4 seats | Premium |
+| **Luxury** | Premium experience with all amenities | 9 rows × 4 seats | Luxury |
 
-## 📍 Supported Cities
+---
 
-Dhaka, Chittagong, Sylhet, Rajshahi, Khulna, Barisal, Rangpur, Comilla, Cox's Bazar, Narayanganj, Gazipur, Mymensingh, Tangail, Bogura, Jessore, Dinajpur, Pabna, Noakhali, Feni, Savar
+## 📍 Supported Cities (20+ Major Cities)
+
+- Dhaka, Chittagong, Sylhet, Rajshahi, Khulna, Barisal, Rangpur, Comilla, Cox's Bazar, Narayanganj, Gazipur, Mymensingh, Tangail, Bogura, Jessore, Dinajpur, Pabna, Noakhali, Feni, Savar
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -131,40 +157,52 @@ Dhaka, Chittagong, Sylhet, Rajshahi, Khulna, Barisal, Rangpur, Comilla, Cox's Ba
 | **Validation** | Zod |
 | **Utilities** | clsx, tailwind-merge |
 
+---
+
 ## 📁 Project Structure
 
 ```
 src/
 ├── app/                      # Next.js App Router pages
 │   ├── (auth)/              # Authentication pages
-│   │   ├── login/           # Login page
-│   │   └── signup/          # Signup page
+│   │   ├── login/           # Login page ⭐ UPDATED
+│   │   ├── signup/         # Signup page
+│   │   ├── forgot-password/# Forgot password page
+│   │   └── reset-password/ # Reset password page
 │   ├── book/[id]/           # Booking page
 │   ├── dashboard/           # User dashboard
-│   │   ├── user/            # User dashboard home
-│   │   └── bookings/        # Bookings management
-│   ├── search/              # Bus search page
-│   ├── layout.tsx           # Root layout
-│   └── page.tsx             # Home page
-├── actions/                  # Server actions
-│   ├── auth.ts              # Authentication actions
-│   └── bookings.ts          # Booking actions
-├── lib/                     # Utilities
-│   ├── supabase/            # Supabase client/server
-│   │   ├── client.ts        # Client-side Supabase
-│   │   ├── server.ts        # Server-side Supabase
-│   │   └── types.ts         # TypeScript types
-│   ├── schemas.ts           # Zod validation schemas
-│   ├── utils.ts             # Helper functions
-│   └── theme-provider.tsx   # Theme context provider
-└── middleware.ts            # Auth protection middleware
+│   │   ├── page.tsx        # Dashboard home
+│   │   ├── user/           # User profile & settings
+│   │   └── bookings/       # Bookings management
+│   ├── search/             # Bus search page
+│   ├── layout.tsx          # Root layout
+│   └── page.tsx            # Home page
+├── actions/                 # Server actions
+│   ├── auth.ts             # Authentication actions
+│   └── bookings.ts         # Booking actions
+├── lib/                    # Utilities
+│   ├── supabase/           # Supabase client/server
+│   │   ├── client.ts       # Client-side Supabase
+│   │   ├── server.ts       # Server-side Supabase
+│   │   └── types.ts        # TypeScript types
+│   ├── schemas.ts          # Zod validation schemas
+│   ├── utils.ts            # Helper functions
+│   └── theme-provider.tsx  # Theme context provider
+└── middleware.ts           # Auth protection middleware
 
 supabase/
-├── schema.sql               # Database schema with RLS policies
-├── seed.sql                 # Sample data
-├── fix_seat_rls_policy.sql  # RLS policy fixes
-└── daily_seat_limit_function.sql  # Daily seat limit function
+├── schema.sql              # Database schema with RLS policies
+├── seed.sql                # Sample data
+├── fix_seat_rls_policy.sql # RLS policy fixes
+├── fix_bus_timing.sql     # Bus timing fixes
+├── fix_seat_counts.sql    # Seat count fixes
+├── cancel_booking_with_seat_update.sql  # Cancellation function
+├── auto_update_seats_trigger.sql        # Auto seat update trigger
+├── reset_bookings.sql     # Reset bookings utility
+└── daily_seat_limit_function.sql  # Daily limit function
 ```
+
+---
 
 ## 🚀 Getting Started
 
@@ -212,29 +250,36 @@ Run the SQL files in Supabase SQL Editor in this order:
 1. `supabase/schema.sql` - Creates all tables, RLS policies, and functions
 2. `supabase/seed.sql` - Adds sample data (buses, routes, schedules)
 3. `supabase/fix_seat_rls_policy.sql` - Fixes seat availability RLS policies
-4. `supabase/cancel_booking_with_seat_update.sql` - Adds atomic cancellation function for seat restoration
-5. `supabase/daily_seat_limit_function.sql` - Adds daily seat limit function (optional)
+4. `supabase/cancel_booking_with_seat_update.sql` - Adds atomic cancellation function
+5. `supabase/auto_update_seats_trigger.sql` - Adds auto seat update trigger
+
+---
 
 ## 🔧 Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server-side, optional) |
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (server-side) | Optional |
+
+---
 
 ## 🧪 Testing Features
 
 To test the booking system:
 
-1. Create an account at `/signup`
-2. Search for buses between cities (e.g., Dhaka → Chittagong)
-3. Select seats (max 4)
-4. Enter passenger details
-5. Complete the demo payment
-6. Download the ticket
-7. Check your bookings at `/dashboard/bookings`
-8. Try cancelling a booking
+1. Create a real account at `/signup` (email verification required)
+2. Log in with your credentials at `/login`
+3. Search for buses between cities (e.g., Dhaka → Chittagong)
+4. Select seats (max 4 per booking)
+5. Enter passenger details
+6. Complete the payment process
+7. Download the ticket
+8. Check your bookings at `/dashboard/bookings`
+9. Try cancelling a booking and verify seat release
+
+---
 
 ## 📱 Pages & Routes
 
@@ -243,10 +288,14 @@ To test the booking system:
 | `/` | Home page | No |
 | `/search` | Bus search | No |
 | `/book/[id]` | Booking page | Yes |
-| `/login` | Login page | No |
+| `/login` | Login page ⭐ Updated | No |
 | `/signup` | Signup page | No |
+| `/forgot-password` | Forgot password | No |
 | `/dashboard` | User dashboard | Yes |
+| `/dashboard/user` | User profile | Yes |
 | `/dashboard/bookings` | My bookings | Yes |
+
+---
 
 ## 🔒 Security Features
 
@@ -256,6 +305,10 @@ To test the booking system:
 - **XSS Protection** - React's automatic escaping
 - **CSRF Protection** - Supabase handles auth tokens securely
 - **Environment Variables** - Sensitive data not exposed to client
+- **Rate Limiting** - Login attempts rate limited
+- **Input Sanitization** - All user inputs sanitized
+
+---
 
 ## 📈 Performance Features
 
@@ -265,28 +318,74 @@ To test the booking system:
 - **Image Optimization** - Optimized images via Next.js
 - **Code Splitting** - Automatic code splitting by route
 - **Real-time Updates** - Efficient seat availability sync
+- **Optimistic Updates** - Immediate UI feedback
+
+---
 
 ## 🎨 Design System
 
 The app uses a custom design system with:
 
-- **Primary Color**: Indigo (#6366f1)
-- **Secondary Color**: Slate gray (#475569)
-- **Success Color**: Emerald (#059669)
-- **Warning Color**: Amber (#d97706)
-- **Error Color**: Red (#dc2626)
-- **Typography**: Inter font family
-- **Border Radius**: 8px (rounded-xl for cards)
-- **Shadows**: Subtle shadow for depth
-- **Animations**: Smooth transitions and hover effects
+| Property | Value |
+|----------|-------|
+| **Primary Color** | Indigo (#6366f1) |
+| **Secondary Color** | Slate gray (#475569) |
+| **Success Color** | Emerald (#059669) |
+| **Warning Color** | Amber (#d97706) |
+| **Error Color** | Red (#dc2626) |
+| **Typography** | Inter font family |
+| **Border Radius** | 8px (rounded-xl for cards) |
+| **Shadows** | Subtle shadow for depth |
+| **Animations** | Smooth transitions and hover effects |
+
+---
+
+## 📊 Database Schema Overview
+
+### Main Tables
+- **users** - User accounts and profiles
+- **buses** - Bus information and seat configurations
+- **routes** - Route information between cities
+- **schedules** - Bus schedules with departure/arrival times
+- **bookings** - Booking records with status
+- **booking_passengers** - Passenger details for each booking
+- **seats** - Seat availability tracking
+
+### Key Relationships
+- Users → Bookings (one-to-many)
+- Routes → Schedules (one-to-many)
+- Schedules → Bookings (one-to-many)
+- Bookings → Booking Passengers (one-to-many)
+
+---
+
+## 🚦 Recent Changes Summary
+
+### ✅ Changes Made
+
+| Change | Description | Impact |
+|--------|-------------|--------|
+| Remove Demo Login | Removed Demo Admin/User buttons from login page | Streamlined auth flow |
+| Clean Code | Removed unused imports and functions | Improved maintainability |
+| Production Ready | Users must create real accounts | Better user data integrity |
+
+---
 
 ## 📄 License
 
-MIT
+MIT License - feel free to use this project for learning or as a starting point for your own bus booking system.
+
+---
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+## 📞 Support
+
+For questions or issues, please open a GitHub issue or contact the development team.
 
 ---
 
